@@ -36,6 +36,11 @@ async function run() {
 
         const classes = client.db("classes").collection("class")
 
+        const teachers = client.db("teacherspack").collection("class")
+
+        const event = client.db("events").collection("event")
+
+        const food = client.db("foods").collection("food")
 
         // here is the cursor for the classes for show
 
@@ -58,6 +63,70 @@ async function run() {
         })
         // ends
 
+
+        // teachers section 
+
+        app.post("/teacher", async (req, res) => {
+            const data = req.body
+
+            const result = await teachers.insertOne(data)
+
+            res.send(result)
+
+        })
+
+        // ends
+
+        // teacher get  
+        app.get('/uteacher', async (req, res) => {
+            const cursor = await teachers.find().toArray()
+            res.send(cursor)
+        })
+        // ends
+
+
+        // event page
+        app.post('/event', async (req, res) => {
+            const data = req.body
+            console.log(data);
+
+            const result = await event.insertOne(data)
+
+            res.send(result)
+        })
+        // ends
+
+        // event cursor
+
+        app.get('/event', async (req, res) => {
+
+            const cursor = await event.find().toArray()
+            res.send(cursor)
+
+
+        })
+
+        // ends
+
+        // food part
+        app.post("/food", async (req, res) => {
+            const data = req.body
+
+            const result = await food.insertOne(data)
+
+            res.send(result)
+        })
+        // ends
+
+        // food cursor
+        app.get("/food", async (req, res) => {
+            const cursor = food.find()
+
+            const result = await cursor.toArray()
+            
+            res.send(result)
+        })
+        // ends
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
