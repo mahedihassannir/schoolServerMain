@@ -17,7 +17,7 @@ require("dotenv").config()
 
 // database
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_EMAIL}:${process.env.DB_PASS}@cluster0.qw6mpdr.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -41,6 +41,7 @@ async function run() {
         const event = client.db("events").collection("event")
 
         const food = client.db("foods").collection("food")
+        const cart = client.db("carts").collection("cart")
 
         // here is the cursor for the classes for show
 
@@ -118,15 +119,64 @@ async function run() {
         })
         // ends
 
-        // food cursor
+        // food cursor and valide user can access tehre data
         app.get("/food", async (req, res) => {
+
             const cursor = food.find()
 
             const result = await cursor.toArray()
             
             res.send(result)
+
         })
         // ends
+
+        // this is the food route pages 
+        app.get('/foodDeTailes/:id', async (req, res) => {
+            const id = req.params.id
+            console.log(id);
+
+            const filter = { _id: new ObjectId(id) }
+
+            // make teh result
+            const result = await food.findOne(filter)
+
+            res.send(result)
+
+        })
+        // here is teh cartpost
+        app.post("/carts", async (req, res) => {
+            const data = req.body
+            console.log(data);
+
+            const result = await cart.insertOne(data)
+
+
+
+            res.send(result)
+
+        })
+
+        // ends
+        app.get("/carts", async (req, res) => {
+
+            const email = req.query.email
+            console.log(email);
+
+            if (!email) {
+                res.send([])
+
+            }
+            const query = { email: email }
+
+            const result = await cart.find(query).toArray()
+
+            res.send(result)
+        })
+        // here is teh cart system
+
+
+        // here is the end of teh req and respones and teh end of apis 
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
