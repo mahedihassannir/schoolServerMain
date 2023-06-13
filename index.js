@@ -13,6 +13,40 @@ app.use(express.json())
 
 require("dotenv").config()
 
+// jwt require
+
+const jwt = require("jsonwebtoken")
+
+
+
+// jwt verify 
+
+function verifyjwt(req, res, next) {
+
+    const authorization = req.headers.authorization
+    if (!authorization) {
+        return res.status(401).send({ err: "accesss denied" })
+    }
+
+    const token = authorization.split(' ')[1]
+
+    jwt.verify(token, process.env.JWT_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ err: "access not valide" })
+        }
+
+        req.decoded = decoded
+
+        next()
+    })
+
+
+
+}
+
+// ends
+
+
 
 
 // database
@@ -125,7 +159,7 @@ async function run() {
             const cursor = food.find()
 
             const result = await cursor.toArray()
-            
+
             res.send(result)
 
         })
@@ -158,22 +192,41 @@ async function run() {
         })
 
         // ends
-        app.get("/carts", async (req, res) => {
+        app.get("/carts", verifyjwt, async (req, res) => {
 
             const email = req.query.email
-            console.log(email);
+            // console.log(email);
 
             if (!email) {
                 res.send([])
 
             }
-            const query = { email: email }
+
+            const authorization = req.decoded.email
+            console.log(authorgit ization);
+            if (email !==authorization){
+                return res.status(403).send({err:"access not valide"})
+            }
+
+
+                const query = { email: email }
 
             const result = await cart.find(query).toArray()
 
             res.send(result)
         })
         // here is teh cart system
+
+        // jwt token create
+        app.post('/jwt', (req, res) => {
+            const data = req.body
+
+            const token = jwt.sign(data, process.env.JWT_TOKEN, {
+                expiresIn: "1d"
+            })
+            res.send({ token })
+        })
+        // ends
 
 
         // here is the end of teh req and respones and teh end of apis 
