@@ -1,34 +1,19 @@
+
+
 [
+  
   {
-    "_id": "642c155b2c4774f05c36eeaa",
-    "name": "Haddock",
-    "recipe": "Chargrilled fresh tuna steak (served medium rare) on classic Niçoise salad with French beans.",
-    "image": "https://cristianonew.ukrdevs.com/wp-content/uploads/2016/08/product-1-370x247.jpg",
-    "category": "salad",
-    "price": 14.7
+    "title": "Haddock",
+    "image": "https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=600",
+    "description":"my name mahedi hassan i  am aijhoh;fln fjlkanhflkzn ajnsalkjhnsla cbn,smc skjb skjbnc,nmbc ,mncb, ,znb,mn c,mnbc,nmbckljhlkjsa ahfjkbjhsakujhgvs vsfshgvajhsvjhav"
+    
   },
+  
   {
-    "_id": "642c155b2c4774f05c36eeb9",
-    "name": "Haddock",
-    "recipe": "Chargrilled fresh tuna steak (served medium rare) on classic Niçoise salad with French beans.",
-    "image": "https://cristianonew.ukrdevs.com/wp-content/uploads/2016/08/product-1-370x247.jpg",
-    "category": "drinks",
-    "price": 14.7
-  },
-  {
-    "_id": "642c155b2c4774f05c36ee7c",
-    "name": "Escalope de Veau",
-    "recipe": "Roasted duck breast (served pink) with gratin potato and a griottine cherry sauce",
-    "image": "https://cristianonew.ukrdevs.com/wp-content/uploads/2016/08/product-5-370x247.jpg",
-    "category": "popular",
-    "price": 14.5
-  },
-  {
-    "_id": "642c155b2c4774f05c36ee88",
-    "name": "Escalope de Veau",
-    "recipe": "Pan roasted haddock fillet wrapped in smoked French bacon with pea purée and tomato and chive vinaigrette",
-    "image": "https://cristianonew.ukrdevs.com/wp-content/uploads/2016/08/product-2-370x247.jpg",
-    "category": "dessert",
-    "price": 12.5
+    "title": "Haddock",
+    "image": "https://images.pexels.com/photos/976866/pexels-photo-976866.jpeg?auto=compress&cs=tinysrgb&w=600",
+    "description":"my name mahedi hassan i  am aijhoh;fln fjlkanhflkzn ajnsalkjhnsla cbn,smc skjb skjbnc,nmbc ,mncb, ,znb,mn c,mnbc,nmbckljhlkjsa ahfjkbjhsakujhgvs vsfshgvajhsvjhav"
+    
   }
+
 ]

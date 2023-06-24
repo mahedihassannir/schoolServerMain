@@ -15,28 +15,34 @@ require("dotenv").config()
 
 // jwt require
 
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken") // require the jwt 
 
 
 
-// jwt verify 
+// jwt verify  
 
 function verifyjwt(req, res, next) {
 
+    // form the client side 
     const authorization = req.headers.authorization
+    // check the authorization here or not 
     if (!authorization) {
         return res.status(401).send({ err: "accesss denied" })
     }
 
+    // split the token 
     const token = authorization.split(' ')[1]
 
+    // verify the token token is valide or not 
     jwt.verify(token, process.env.JWT_TOKEN, (err, decoded) => {
         if (err) {
             return res.status(403).send({ err: "access not valide" })
         }
 
+        // here is the email form the clint side 
         req.decoded = decoded
 
+        // then go to the next step 
         next()
     })
 
@@ -44,7 +50,7 @@ function verifyjwt(req, res, next) {
 
 }
 
-// ends
+// endsn of jwt 
 
 
 
@@ -68,14 +74,23 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
+        // all databases
         const classes = client.db("classes").collection("class")
 
+        // teachers db
         const teachers = client.db("teacherspack").collection("class")
 
+        // event db
         const event = client.db("events").collection("event")
 
+        // food collection
         const food = client.db("foods").collection("food")
+
+        // user cart collection
         const cart = client.db("carts").collection("cart")
+
+        // all databases ends
+
 
         // here is the cursor for the classes for show
 
@@ -203,19 +218,35 @@ async function run() {
             }
 
             const authorization = req.decoded.email
-            console.log(authorgit ization);
-            if (email !==authorization){
-                return res.status(403).send({err:"access not valide"})
+
+            if (email !== authorization) {
+                return res.status(403).send({ err: "access not valide" })
             }
 
 
-                const query = { email: email }
+            const query = { email: email }
 
             const result = await cart.find(query).toArray()
 
             res.send(result)
         })
         // here is teh cart system
+
+        // delete method to delete added cart item
+        app.delete('/cartDelete/:id', async (req, res) => {
+            const id = req.params.id
+
+            const filter = { _id: new ObjectId(id) }
+
+            const result = await cart.deleteOne(filter)
+
+            // here we pass the result
+            res.send(result)
+
+        })
+        // delete method to delete added cart item ends
+
+
 
         // jwt token create
         app.post('/jwt', (req, res) => {
