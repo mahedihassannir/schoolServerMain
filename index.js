@@ -158,6 +158,21 @@ async function run() {
 
         // ends
 
+        // event spasific detelse
+        app.get('/event/:id', async (req, res) => {
+
+            const id = req.params.id
+
+            const filter = { _id: new ObjectId(id) }
+
+            const result = await event.findOne(filter)
+
+            res.send(result)
+
+        })
+        // event spasific detelse ends
+
+
         // food part
         app.post("/food", async (req, res) => {
             const data = req.body
@@ -245,6 +260,7 @@ async function run() {
 
         })
         // delete method to delete added cart item ends
+
 
 
 
