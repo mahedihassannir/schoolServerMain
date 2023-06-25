@@ -1,3 +1,4 @@
 node_Modules
 
 .env
+.vercel
