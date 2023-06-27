@@ -25,9 +25,10 @@ function verifyjwt(req, res, next) {
 
     // form the client side 
     const authorization = req.headers.authorization
+    console.log({ Authorization: authorization });
     // check the authorization here or not 
     if (!authorization) {
-        return res.status(401).send({ err: "accesss denied" })
+        return res.status(401).send({ err: "access denied" })
     }
 
     // split the token 
@@ -36,7 +37,7 @@ function verifyjwt(req, res, next) {
     // verify the token token is valide or not 
     jwt.verify(token, process.env.JWT_TOKEN, (err, decoded) => {
         if (err) {
-            return res.status(403).send({ err: "access not valide" })
+            return res.status(403).send({ err: "access not valid" })
         }
 
         // here is the email form the clint side 
@@ -72,7 +73,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect();
+        await client.connect();
 
         // all databases
         const classes = client.db("classes").collection("class")
@@ -88,11 +89,14 @@ async function run() {
 
         // user cart collection
         const cart = client.db("carts").collection("cart")
+        // All users 
+        const user = client.db("Alluser").collection("user")
 
         // all databases ends
 
 
-        // here is the cursor for the classes for show
+
+        // all user
 
         app.get('/class', async (req, res) => {
             const cursor = await classes.find().toArray()
@@ -126,6 +130,74 @@ async function run() {
         })
 
         // ends
+
+        // all users
+
+        app.post("/users", async (req, res) => {
+            const data = req.body
+
+            const result = await user.insertOne(data)
+
+            res.send(result)
+
+        })
+
+
+        // user get  
+        app.get('/user', async (req, res) => {
+            const cursor = await user.find().toArray()
+            res.send(cursor)
+        })
+        // ends
+
+
+        // admin chacking 
+
+        app.get('/user/admin/:email', verifyjwt, async (req, res) => {
+
+            const email = req.params.email //per user email getting
+
+            // verify the admin email and user email same or not
+            if (req.decoded.email !== email) {
+                res.send({ admin: false })
+            }
+
+            const query = { email: email } // find the email
+            const userdata = await user.findOne(query) // in this email 
+
+            const result = { admin: userdata?.role === 'admin' } // sodi kono admin thake aii data tey 
+
+            res.send(result)
+
+
+        })
+
+        // user role admin or not 
+
+        app.patch("/user/admin/:id", async (req, res) => {
+
+            // get the user id
+            const id = req.params.id
+
+
+            // filter the id
+            const filter = { _id: new ObjectId(id) }
+
+
+            // here is the setiing update
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            // result making
+            const result = await user.updateOne(filter, updateDoc)
+
+            // sending the result
+            res.send(result)
+
+        })
+
 
         // teacher get  
         app.get('/uteacher', async (req, res) => {
