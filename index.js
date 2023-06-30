@@ -59,6 +59,7 @@ function verifyjwt(req, res, next) {
 // database
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { rest } = require('lodash');
 const uri = `mongodb+srv://${process.env.DB_EMAIL}:${process.env.DB_PASS}@cluster0.qw6mpdr.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -73,7 +74,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         // all databases
         const classes = client.db("classes").collection("class")
@@ -92,7 +93,95 @@ async function run() {
         // All users 
         const user = client.db("Alluser").collection("user")
 
+        const socialdb = client.db("socialPostes").collection("postdata")
+
         // all databases ends
+
+
+
+
+
+
+        // jwt token create
+        app.post('/jwt', (req, res) => {
+            const data = req.body
+
+            const token = jwt.sign(data, process.env.JWT_TOKEN, {
+                expiresIn: "1d"
+            })
+            res.send({ token })
+        })
+        // ends
+
+        // verify admin 
+        const verifyAdmin = async (req, res, next) => {
+
+            const email = req.decoded.email
+
+            const query = { email: email }
+
+            const userdata = await user.findOne(query)
+
+            if (userdata?.role !== 'admin') {
+
+                return res.status(403).send({ err: true, message: 'forbidden message' })
+
+
+            }
+            next()
+
+
+        }
+
+
+        // main cursor
+
+        app.get("/allpost", async (req, res) => {
+            const cursor = socialdb.find()
+
+            const result = await cursor.toArray()
+
+            res.send(result)
+
+        })
+
+        // show on the profile
+        app.get("/personPost", verifyjwt, async (req, res) => {
+
+            const email = req.query.email
+            console.log(email);
+
+            if (!email) {
+                res.send([])
+
+            }
+
+            const authorization = req.decoded.email
+
+            if (email !== authorization) {
+                return res.status(403).send({ err: "access not valide" })
+            }
+            const query = { email: email }
+
+
+
+            const result = await socialdb.find(query).toArray()
+
+            res.send(result)
+        })
+
+        app.post("/socialpost", async (req, res) => {
+
+            const data = req.body
+
+            const result = await socialdb.insertOne(data)
+
+            res.send(result)
+
+
+        })
+
+
 
 
 
@@ -144,7 +233,7 @@ async function run() {
 
 
         // user get  
-        app.get('/user', async (req, res) => {
+        app.get('/user', verifyjwt, verifyAdmin, async (req, res) => {
             const cursor = await user.find().toArray()
             res.send(cursor)
         })
@@ -256,7 +345,7 @@ async function run() {
         // ends
 
         // food cursor and valide user can access tehre data
-        app.get("/food", async (req, res) => {
+        app.get("/addfood", async (req, res) => {
 
             const cursor = food.find()
 
@@ -336,16 +425,8 @@ async function run() {
 
 
 
-        // jwt token create
-        app.post('/jwt', (req, res) => {
-            const data = req.body
 
-            const token = jwt.sign(data, process.env.JWT_TOKEN, {
-                expiresIn: "1d"
-            })
-            res.send({ token })
-        })
-        // ends
+
 
 
         // here is the end of teh req and respones and teh end of apis 
