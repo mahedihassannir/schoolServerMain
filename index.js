@@ -345,7 +345,7 @@ async function run() {
         // ends
 
         // food cursor and valide user can access tehre data
-        app.get("/addfood", async (req, res) => {
+        app.get("/food", async (req, res) => {
 
             const cursor = food.find()
 
