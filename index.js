@@ -137,7 +137,7 @@ async function run() {
         // main cursor
 
         app.get("/allpost", async (req, res) => {
-            const cursor = socialdb.find()
+            const cursor = socialdb.find().sort({ _id: -1 })
 
             const result = await cursor.toArray()
 
@@ -165,7 +165,7 @@ async function run() {
 
 
 
-            const result = await socialdb.find(query).toArray()
+            const result = await socialdb.find(query).sort({ _id: -1 }).toArray()
 
             res.send(result)
         })
@@ -290,7 +290,7 @@ async function run() {
 
         // teacher get  
         app.get('/uteacher', async (req, res) => {
-            const cursor = await teachers.find().toArray()
+            const cursor = await teachers.find().sort({ _id: -1 }).toArray()
             res.send(cursor)
         })
         // ends
@@ -309,9 +309,12 @@ async function run() {
 
         // event cursor
 
+
+        // sort({ _id: -1 })
+
         app.get('/event', async (req, res) => {
 
-            const cursor = await event.find().toArray()
+            const cursor = await event.find().sort({ _id: -1 }).toArray()
             res.send(cursor)
 
 
