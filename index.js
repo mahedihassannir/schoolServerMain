@@ -51,7 +51,7 @@ function verifyjwt(req, res, next) {
 
 }
 
-// endsn of jwt 
+// endsn of jwt       
 
 
 
@@ -93,7 +93,10 @@ async function run() {
         // All users 
         const user = client.db("Alluser").collection("user")
 
+        // social all posts
         const socialdb = client.db("socialPostes").collection("postdata")
+        // announcement related db
+        const announcement = client.db("announcementdb").collection("announcement")
 
         // all databases ends
 
@@ -132,6 +135,42 @@ async function run() {
 
 
         }
+
+
+        // announcement post 
+        app.post("/sociaannouncementlpost", async (req, res) => {
+
+            const data = req.body
+
+            const result = await announcement.insertOne(data)
+
+            res.send(result)
+
+
+        })
+
+        // announcement cursor 
+        app.get("/cursorannouncement", async (req, res) => {
+
+            const curosr = announcement.find()
+
+            const result = await curosr.toArray()
+
+            res.send(result)
+
+        })
+
+        // announcement cursor
+        app.delete('/cursorannouncement/:id', async (req, res) => {
+
+            const id = req.params.id
+
+            const filter = { _id: new ObjectId(id) }
+
+            const result = await announcement.deleteOne(filter)
+            res.send(result)
+
+        })
 
 
         // main cursor
@@ -334,7 +373,24 @@ async function run() {
             res.send(result)
 
         })
+
         // event spasific detelse ends
+
+        // event delete system
+
+        app.delete('/eventdelete/:id', async (req, res) => {
+
+            const id = req.params.id
+
+            const filter = { _id: new ObjectId(id) }
+
+            const result = await event.deleteOne(filter)
+
+            res.send(result)
+
+        })
+
+
 
 
         // food part
