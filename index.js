@@ -100,6 +100,7 @@ async function run() {
 
         // all databases ends
 
+        const booksdb = client.db("booksdb").collection("booksdb")
 
 
 
@@ -148,6 +149,7 @@ async function run() {
 
 
         })
+        // ends
 
         // announcement cursor 
         app.get("/cursorannouncement", async (req, res) => {
@@ -171,9 +173,11 @@ async function run() {
             res.send(result)
 
         })
+        // ends
 
 
-        // main cursor
+
+        // social media main cursor
 
         app.get("/allpost", async (req, res) => {
             const cursor = socialdb.find().sort({ _id: -1 })
@@ -208,6 +212,8 @@ async function run() {
 
             res.send(result)
         })
+
+        // social media post
 
         app.post("/socialpost", async (req, res) => {
 
@@ -482,6 +488,27 @@ async function run() {
         // delete method to delete added cart item ends
 
 
+        // here is the book get method 
+        app.get("/books", async (req, res) => {
+            const cursor = booksdb.find()
+
+            const result = await cursor.toArray()
+
+            res.send(result)
+        })
+        // ends
+
+        // here is the book post method 
+
+        app.post("/booksPost", async (req, res) => {
+            const bodydata = req.body
+
+            const result = await booksdb.insertOne(bodydata)
+            res.send(result)
+        })
+
+
+        // ends
 
 
 
