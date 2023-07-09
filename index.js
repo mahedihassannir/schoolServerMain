@@ -102,6 +102,8 @@ async function run() {
 
         const booksdb = client.db("booksdb").collection("booksdb")
 
+        const blog = client.db("blogdb").collection("blog")
+
 
 
 
@@ -510,7 +512,29 @@ async function run() {
 
         // ends
 
+        // bolg cursor
 
+        app.get("/blogs", async (req, res) => {
+
+            const curosr = blog.find()
+
+            const result = await curosr.toArray()
+            res.send(result)
+
+        })
+
+        // here is blg post request
+
+        app.post("/blogpost", async (req, res) => {
+
+
+            const postdata = req.body
+
+            const result = await blog.insertOne(postdata)
+            res.send(result)
+
+
+        })
 
 
 
