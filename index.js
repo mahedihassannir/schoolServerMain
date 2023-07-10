@@ -74,7 +74,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect();
+        await client.connect();
 
         // all databases
         const classes = client.db("classes").collection("class")
@@ -103,6 +103,9 @@ async function run() {
         const booksdb = client.db("booksdb").collection("booksdb")
 
         const blog = client.db("blogdb").collection("blog")
+
+        // user save post data
+        const comment = client.db("comment").collection("comment")
 
 
 
@@ -535,6 +538,23 @@ async function run() {
 
 
         })
+
+        // user save post
+
+        app.post("/comment", async (req, res) => {
+
+            const body = req.body
+
+            const result = await comment.insertOne(body)
+
+            res.send(result)
+
+
+
+        })
+
+        // user save post ends
+
 
 
 
