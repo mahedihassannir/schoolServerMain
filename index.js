@@ -74,7 +74,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         // all databases
         const classes = client.db("classes").collection("class")
@@ -555,6 +555,24 @@ async function run() {
 
         // user save post ends
 
+
+        // this is book read page 
+
+        app.get("/redbook/:id", async (req, res) => {
+
+            const id = req.params.id
+
+            const filterOneById = { _id: new ObjectId(id) }
+
+            const result = await booksdb.findOne(filterOneById)
+
+            res.send(result)
+
+
+        })
+
+
+        // this is book read page ends
 
 
 
