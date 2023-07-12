@@ -1,9 +1,11 @@
+
 const express = require('express');
 
 const app = express(express)
 
 const port = process.env.POST || 5000
 
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const cors = require("cors")
 
@@ -12,6 +14,9 @@ app.use(cors())
 app.use(express.json())
 
 require("dotenv").config()
+
+const uri = `mongodb+srv://${process.env.DB_EMAIL}:${process.env.DB_Pass}@cluster0.qw6mpdr.mongodb.net/?retryWrites=true&w=majority`;
+
 
 // jwt require
 
@@ -58,9 +63,9 @@ function verifyjwt(req, res, next) {
 
 // database
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const { rest } = require('lodash');
-const uri = `mongodb+srv://${process.env.DB_EMAIL}:${process.env.DB_PASS}@cluster0.qw6mpdr.mongodb.net/?retryWrites=true&w=majority`;
+
+
+
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -74,6 +79,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
+
         // await client.connect();
 
         // all databases
@@ -197,7 +203,6 @@ async function run() {
         app.get("/personPost", verifyjwt, async (req, res) => {
 
             const email = req.query.email
-            console.log(email);
 
             if (!email) {
                 res.send([])
@@ -345,11 +350,29 @@ async function run() {
         })
         // ends
 
+        // teachers video detailes 
+
+        app.get("/teacherDetail/:id", async (req, res) => {
+
+            const id = req.params.id
+
+            const filter = { _id: new ObjectId(id) }
+
+            const result = await teachers.findOne(filter)
+
+            res.send(result)
+
+
+        })
+
+
+        // teachers video detailes  ends
+
 
         // event page
         app.post('/event', async (req, res) => {
             const data = req.body
-            console.log(data);
+
 
             const result = await event.insertOne(data)
 
@@ -429,7 +452,7 @@ async function run() {
         // this is the food route pages 
         app.get('/foodDeTailes/:id', async (req, res) => {
             const id = req.params.id
-            console.log(id);
+
 
             const filter = { _id: new ObjectId(id) }
 
@@ -442,7 +465,7 @@ async function run() {
         // here is teh cartpost
         app.post("/carts", async (req, res) => {
             const data = req.body
-            console.log(data);
+
 
             const result = await cart.insertOne(data)
 
@@ -456,7 +479,7 @@ async function run() {
         app.get("/carts", verifyjwt, async (req, res) => {
 
             const email = req.query.email
-            // console.log(email);
+
 
             if (!email) {
                 res.send([])
