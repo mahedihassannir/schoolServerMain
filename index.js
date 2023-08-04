@@ -15,6 +15,13 @@ app.use(express.json())
 
 require("dotenv").config()
 
+// payment related work
+
+const SSLCommerzPayment = require('sslcommerz-lts')
+
+
+
+
 const uri = `mongodb+srv://${process.env.DB_EMAIL}:${process.env.DB_Pass}@cluster0.qw6mpdr.mongodb.net/?retryWrites=true&w=majority`;
 
 
@@ -76,6 +83,17 @@ const client = new MongoClient(uri, {
     }
 });
 
+
+
+const store_id = process.env.S_ID;
+
+
+const store_passwd = process.env.P_ID;
+
+
+const is_live = false //true for live, false for sandbox
+
+
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
@@ -113,7 +131,118 @@ async function run() {
         // user save post data
         const comment = client.db("comment").collection("comment")
 
+        // courses database
 
+        const CoursesDb = client.db("courses").collection("course")
+        // order
+        const Order = client.db("Order").collection("Orderf")
+
+
+        // order get ;
+
+        const tran_id = new ObjectId().toString(); // for genarate new id 
+
+        app.post("/order", async (req, res) => {
+
+
+            const product = await CoursesDb.findOne({ _id: new ObjectId(req.body.productID) })
+
+
+            const order = req.body
+
+            const data = {
+                total_amount: product.Fee,
+                currency: 'BDT',
+                tran_id: tran_id, // use unique tran_id for each api call
+                success_url: `http://localhost:5000/payment/success/${tran_id}`,
+                fail_url: `http://localhost:5000/payment/failed/${tran_id}`,
+                cancel_url: 'http://localhost:3030/cancel',
+                ipn_url: 'http://localhost:3030/ipn',
+                shipping_method: 'Courier',
+                product_name: order.title,
+                product_category: 'Electronic',
+                product_profile: 'general',
+                cus_name: order.name,
+                cus_email: order.email,
+                cus_add1: 'Dhaka',
+                cus_add2: 'Dhaka',
+                cus_city: 'Dhaka',
+                cus_state: 'Dhaka',
+                cus_postcode: '1000',
+                cus_country: 'Bangladesh',
+                cus_phone: '01711111111',
+                cus_fax: '01711111111',
+                ship_name: 'Customer Name',
+                ship_add1: 'Dhaka',
+                ship_add2: 'Dhaka',
+                ship_city: 'Dhaka',
+                ship_state: 'Dhaka',
+                ship_postcode: 1000,
+                ship_country: 'Bangladesh',
+            };
+            const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live)
+            sslcz.init(data).then(apiResponse => {
+                // Redirect the user to payment gateway
+                let GatewayPageURL = apiResponse.GatewayPageURL
+                res.send({ url: GatewayPageURL });
+
+                const finalOrder = {
+                    product,
+                    person: order,
+                    paidStatus: false,
+                    tranjectionId: tran_id
+                };
+
+                const result = Order.insertOne(finalOrder);
+
+                console.log('Redirecting to: ', GatewayPageURL)
+            });
+
+
+
+            // this is for fail payment route 
+            app.post("/payment/failed/:tranId", async (req, res) => {
+
+                const result = await Order.deleteOne({
+                    tranjectionId: req.params.tranId,
+
+                });
+
+                if (result.deletedCount) {
+                    res.redirect(`http://localhost:5173/payment/failed/${req.params.tranId}`);
+                };
+
+
+                console.log(result);
+
+
+
+            });
+
+
+
+            app.post("/payment/success/:tranId", async (req, res) => {
+
+                console.log(req.params.tranId)
+
+                const result = await Order.updateOne(
+                    { tranjectionId: req.params.tranId },
+                    {
+                        $set: {
+                            paidStatus: true
+                        }
+                    }
+                )
+                if (result.modifiedCount > 0) {
+                    res.redirect(`http://localhost:5173/payment/success/${req.params.tranId}`)
+                }
+
+
+
+            })
+
+
+        })
 
 
 
@@ -202,7 +331,10 @@ async function run() {
         // show on the profile
         app.get("/personPost", verifyjwt, async (req, res) => {
 
+            // get the email from the query.
             const email = req.query.email
+
+            // this is check email is ase ki nai.
 
             if (!email) {
                 res.send([])
@@ -211,9 +343,12 @@ async function run() {
 
             const authorization = req.decoded.email
 
+            // this is check the email is same or not.
+
             if (email !== authorization) {
                 return res.status(403).send({ err: "access not valide" })
             }
+
             const query = { email: email }
 
 
@@ -224,7 +359,7 @@ async function run() {
         })
 
 
-       
+
 
         // social media post
 
@@ -600,6 +735,53 @@ async function run() {
 
 
         // this is book read page ends
+
+
+
+        // here is the all courses functionality 
+
+        app.get("/courses", async (req, res) => {
+            const cursor = CoursesDb.find()
+
+            const result = await cursor.toArray()
+
+            res.send(result)
+        })
+        // ends
+
+        // courses post method
+
+        app.post("/addcourse", async (req, res) => {
+
+            const coursedatabody = req.body;
+
+            const result = await CoursesDb.insertOne(coursedatabody)
+
+            res.send(result)
+
+
+        })
+
+        // courses post method ends
+
+        // get sing course 
+
+        app.get("/courseA/:id", async (req, res) => {
+
+            const id = req.params.id
+
+            const filterOneById = { _id: new ObjectId(id) }
+
+            const result = await CoursesDb.findOne(filterOneById)
+
+            res.send(result)
+
+
+        })
+
+
+
+        // get sing course ends 
 
 
 
