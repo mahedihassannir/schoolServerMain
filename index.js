@@ -144,20 +144,33 @@ async function run() {
 
 
 
-        app.post("/payment/success/:tranId", async (req, res) => {
+        app.post('/payment/success/:tranId', async (req, res) => {
+            const { name, phone } = req.body;
+            const { tranId } = req.params;
 
-            console.log(req.params.tranId)
-
-            const result = await Order.insertOne(
-                { tranjectionId: req.params.tranId }
-            )
-            console.log(result);
-            if (result) {
-                res.send("success")
+            if (!name || !phone || !tranId) {
+                return res.status(400).json({ message: 'All fields are required.' });
             }
 
-           
-        })
+            try {
+                const result = await Order.insertOne({
+                    name,
+                    phone,
+                    transactionId: tranId,
+                    createdAt: new Date()
+                });
+
+                if (result.acknowledged) {
+                    console.log('Order Inserted:', result);
+                    res.status(200).json({ message: 'Payment successful!' });
+                } else {
+                    res.status(500).json({ message: 'Failed to process payment.' });
+                }
+            } catch (error) {
+                console.error('Error inserting order:', error);
+                res.status(500).json({ message: 'Server error.' });
+            }
+        });
 
 
 
