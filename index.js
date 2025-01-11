@@ -9,8 +9,11 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const cors = require("cors")
 
-app.use(cors())
-
+app.use(cors({
+    origin: 'https://grammen.netlify.app',  // ✅ Only allow your frontend
+    methods: ['GET', 'POST'],
+    credentials: true
+  }));
 app.use(express.json())
 
 require("dotenv").config()
